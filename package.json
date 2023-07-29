@@ -1,0 +1,21 @@
+{
+  "name": "nodejs-http-wrapper",
+  "version": "1.0.2",
+  "description": "default nodejs http wrapper with support proxy, dns, custom dns resolver",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "hpagent": "^1.2.0",
+    "filesize": "^8.0.6"
+  }
+}
