@@ -1,5 +1,6 @@
 export interface TunnelInfo {
     proxy?: string,
     dns?: string,
-    dnsAuto?: string
+    dnsAuto?: string,
+    cdnProxy?: string
 }
