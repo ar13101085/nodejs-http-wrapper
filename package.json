@@ -1,6 +1,6 @@
 {
   "name": "nodejs-http-wrapper",
-  "version": "1.0.5",
+  "version": "1.0.12",
   "description": "default nodejs http wrapper with support proxy, dns, custom dns resolver",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

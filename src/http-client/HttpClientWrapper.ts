@@ -39,11 +39,6 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.refId = refId;
         let agent: any = undefined;
         let dnsLookUp: any = undefined;
-        if (tunnelInfo.cdnProxy) {
-            const replaceResults = this.replaceHostname(url, tunnelInfo.cdnProxy);
-            url = replaceResults[0];
-            headers['targethost'] = replaceResults[1];
-        }
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
             const fnAgent = url.startsWith("https:")
                 ? HttpsProxyAgent
@@ -82,6 +77,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                 if (maxTry >= 5) {
                     reject("Maximum times trying follow url error");
                 }
+                let targetUrl = followUrl;
+                if (tunnelInfo.cdnProxy) {
+                    const replaceResults = context.replaceHostname(targetUrl, tunnelInfo.cdnProxy);
+                    targetUrl = replaceResults[0];
+                    headers['targethost'] = replaceResults[1];
+                }
 
                 const options: any = {
                     method: "HEAD",
@@ -90,13 +91,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     agent,
                     lookup: dnsLookUp
                 };
-                const fn = followUrl.startsWith("https:")
+                const fn = targetUrl.startsWith("https:")
                     ? https.request
                     : http.request;
-                options.path = followUrl;
+                options.path = targetUrl;
                 let startTime = Date.now();
                 const client = fn(
-                    followUrl,
+                    targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
                         if (
@@ -256,12 +257,6 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.logger?.info("Curl Request", { refId, url, headers, tunnelInfo, reqId });
         this.refId = refId;
 
-        if (tunnelInfo.cdnProxy) {
-            const replaceResults = this.replaceHostname(url, tunnelInfo.cdnProxy);
-            url = replaceResults[0];
-            headers['targethost'] = replaceResults[1];
-        }
-
         if (postRequestType === PostRequestType.JSON) {
             headers["Content-Type"] = "application/json";
             data = JSON.stringify(data) as any;
@@ -309,12 +304,18 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
             }
         }
 
-        const fn = url.startsWith("https:") ? https.request : http.request;
+
         const context = this;
         return new Promise((resolve, reject) => {
             function followRedirect(followUrl: string, maxTry: number) {
                 if (maxTry >= 5) {
                     reject("Maximum times trying follow url error");
+                }
+                let targetUrl = followUrl;
+                if (tunnelInfo.cdnProxy) {
+                    const replaceResults = context.replaceHostname(targetUrl, tunnelInfo.cdnProxy);
+                    targetUrl = replaceResults[0];
+                    headers['targethost'] = replaceResults[1];
                 }
                 const options: any = {
                     method: "PUT",
@@ -323,10 +324,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     agent,
                     lookup: dnsLookUp
                 };
-                options.path = followUrl;
+
+                const fn = targetUrl.startsWith("https:") ? https.request : http.request;
+                options.path = targetUrl;
+
                 let startTime = Date.now();
                 const client = fn(
-                    followUrl,
+                    targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
                         if (
@@ -481,12 +485,6 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.logger?.info("Curl Request", { refId, url, headers, tunnelInfo, reqId });
         this.refId = refId;
 
-        if (tunnelInfo.cdnProxy) {
-            const replaceResults = this.replaceHostname(url, tunnelInfo.cdnProxy);
-            url = replaceResults[0];
-            headers['targethost'] = replaceResults[1];
-        }
-
         if (postRequestType === PostRequestType.JSON) {
             headers["Content-Type"] = "application/json";
             data = JSON.stringify(data) as any;
@@ -534,12 +532,18 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
             }
         }
 
-        const fn = url.startsWith("https:") ? https.request : http.request;
+
         const context = this;
         return new Promise((resolve, reject) => {
             function followRedirect(followUrl: string, maxTry: number) {
                 if (maxTry >= 5) {
                     reject("Maximum times trying follow url error");
+                }
+                let targetUrl = followUrl;
+                if (tunnelInfo.cdnProxy) {
+                    const replaceResults = context.replaceHostname(targetUrl, tunnelInfo.cdnProxy);
+                    targetUrl = replaceResults[0];
+                    headers['targethost'] = replaceResults[1];
                 }
                 const options: any = {
                     method: "DELETE",
@@ -548,10 +552,11 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     agent,
                     lookup: dnsLookUp
                 };
-                options.path = followUrl;
+                const fn = targetUrl.startsWith("https:") ? https.request : http.request;
+                options.path = targetUrl;
                 let startTime = Date.now();
                 const client = fn(
-                    followUrl,
+                    targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
                         if (
@@ -737,11 +742,6 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         let agent: any = undefined;
         let dnsLookUp: any = undefined;
 
-        if (tunnelInfo.cdnProxy) {
-            const replaceResults = this.replaceHostname(url, tunnelInfo.cdnProxy);
-            url = replaceResults[0];
-            headers['targethost'] = replaceResults[1];
-        }
 
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
             const fnAgent = url.startsWith("https:")
@@ -782,6 +782,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     reject("Maximum times trying follow url error");
                 }
 
+                let targetUrl = followUrl;
+                if (tunnelInfo.cdnProxy) {
+                    const replaceResults = context.replaceHostname(targetUrl, tunnelInfo.cdnProxy);
+                    targetUrl = replaceResults[0];
+                    headers['targethost'] = replaceResults[1];
+                }
                 const options: any = {
                     method: "GET",
                     headers,
@@ -789,13 +795,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     agent,
                     lookup: dnsLookUp
                 };
-                const fn = followUrl.startsWith("https:")
+                const fn = targetUrl.startsWith("https:")
                     ? https.request
                     : http.request;
-                options.path = followUrl;
+                options.path = targetUrl;
                 let startTime = Date.now();
                 const client = fn(
-                    followUrl,
+                    targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
                         if (
@@ -975,12 +981,6 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.logger?.info("Curl Request", { refId, url, headers, tunnelInfo, reqId });
         this.refId = refId;
 
-        if (tunnelInfo.cdnProxy) {
-            const replaceResults = this.replaceHostname(url, tunnelInfo.cdnProxy);
-            url = replaceResults[0];
-            headers['targethost'] = replaceResults[1];
-        }
-
         if (postRequestType === PostRequestType.JSON) {
             headers["Content-Type"] = "application/json";
             data = JSON.stringify(data) as any;
@@ -1027,14 +1027,20 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                 callback(null, tunnelInfo.dnsAuto, 4);
             }
         }
-
-        const fn = url.startsWith("https:") ? https.request : http.request;
         const context = this;
         return new Promise((resolve, reject) => {
             function followRedirect(followUrl: string, maxTry: number) {
                 if (maxTry >= 5) {
                     reject("Maximum times trying follow url error");
                 }
+
+                let targetUrl = followUrl;
+                if (tunnelInfo.cdnProxy) {
+                    const replaceResults = context.replaceHostname(targetUrl, tunnelInfo.cdnProxy);
+                    targetUrl = replaceResults[0];
+                    headers['targethost'] = replaceResults[1];
+                }
+
                 const options: any = {
                     method: "POST",
                     headers,
@@ -1042,10 +1048,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     agent,
                     lookup: dnsLookUp
                 };
-                options.path = followUrl;
+
+                const fn = targetUrl.startsWith("https:") ? https.request : http.request;
+                options.path = targetUrl;
                 let startTime = Date.now();
                 const client = fn(
-                    followUrl,
+                    targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
                         if (
