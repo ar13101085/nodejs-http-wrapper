@@ -39,6 +39,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.refId = refId;
         let agent: any = undefined;
         let dnsLookUp: any = undefined;
+        //delete undefined headers key
+        for (const key in headers) {
+            if (!headers[key]) {
+                delete headers[key];
+            }
+        }
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
             const fnAgent = url.startsWith("https:")
                 ? HttpsProxyAgent
@@ -264,10 +270,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
             headers["Content-Type"] = "application/x-www-form-urlencoded";
             data = stringify(data) as any;
         }
-        /* for (let key in httpHeaders) {
-                headers.push(key);
-                headers.push(httpHeaders[key] as string);
-            } */
+        //delete undefined headers key
+        for (const key in headers) {
+            if (!headers[key]) {
+                delete headers[key];
+            }
+        }
 
         let agent: any;
         let dnsLookUp: any = undefined;
@@ -492,11 +500,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
             headers["Content-Type"] = "application/x-www-form-urlencoded";
             data = stringify(data) as any;
         }
-        /* for (let key in httpHeaders) {
-                headers.push(key);
-                headers.push(httpHeaders[key] as string);
-            } */
-
+        //delete undefined headers key
+        for (const key in headers) {
+            if (!headers[key]) {
+                delete headers[key];
+            }
+        }
         let agent: any;
         let dnsLookUp: any = undefined;
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
@@ -742,7 +751,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         let agent: any = undefined;
         let dnsLookUp: any = undefined;
 
-
+        //delete undefined headers key
+        for (const key in headers) {
+            if (!headers[key]) {
+                delete headers[key];
+            }
+        }
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
             const fnAgent = url.startsWith("https:")
                 ? HttpsProxyAgent
@@ -982,16 +996,21 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.refId = refId;
 
         if (postRequestType === PostRequestType.JSON) {
-            headers["Content-Type"] = "application/json";
             data = JSON.stringify(data) as any;
+            headers["Content-Type"] = "application/json";
+            headers['Content-Length'] = data.length;
         } else {
             headers["Content-Type"] = "application/x-www-form-urlencoded";
             data = stringify(data) as any;
+            headers['Content-Length'] = data.length;
         }
-        /* for (let key in httpHeaders) {
-                headers.push(key);
-                headers.push(httpHeaders[key] as string);
-            } */
+        
+        //delete undefined headers key
+        for (const key in headers) {
+            if (!headers[key]) {
+                delete headers[key];
+            }
+        }
 
         let agent: any;
         let dnsLookUp: any = undefined;
@@ -1052,6 +1071,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                 const fn = targetUrl.startsWith("https:") ? https.request : http.request;
                 options.path = targetUrl;
                 let startTime = Date.now();
+                console.log('options', options);
                 const client = fn(
                     targetUrl,
                     options as http.ClientRequestArgs,
