@@ -1,5 +1,5 @@
 import { AosClient, PostRequestType, RequestType } from "../model/client";
-import http from "http";
+import http, { Agent } from "http";
 import https from "https";
 import { stringify } from "querystring";
 import filesize from "filesize";
@@ -10,15 +10,16 @@ import { EventEmitter } from 'events';
 import { ILogger } from "../model/ILogger";
 export class HttpClientWrapper extends EventEmitter implements AosClient {
     ref: string;
-    client: any;
-    timeout: number = 20000;
+    client: http.ClientRequest | undefined;
+    _responseController: http.IncomingMessage | undefined;
+    timeout: number;
     refId: string | undefined;
     logger?: ILogger;
-    constructor(ref: string, lowSpeedTime = 60, logger?: ILogger) {
+    constructor(ref: string, lowSpeedTime = 20, logger?: ILogger) {
         super();
         this.ref = ref;
         this.logger = logger;
-        //this.timeout = lowSpeedTime * 1000;
+        this.timeout = lowSpeedTime * 1000;
     }
     replaceHostname(url: string, newUrlWithHost: string): [string, string] {
         try {
@@ -106,6 +107,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
+                        context._responseController = clientResponse;
                         if (
                             (clientResponse.statusCode as number) >= 300 &&
                             (clientResponse.statusCode as number) < 400 &&
@@ -241,11 +243,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     context.killOrAbort(url, reqId, err.message);
                     reject(err.message);
                 });
+                if (context.timeout > 0) {
+                    client.setTimeout(context.timeout, () => {
+                        context.killOrAbort(url, reqId, "Connection timed out");
+                        reject("Connection timed out");
+                    });
+                }
 
-                client.setTimeout(context.timeout, () => {
-                    context.killOrAbort(url, reqId, "Connection timed out");
-                    reject("Connection timed out");
-                });
                 /* client.on('timeout', () => {
                             context.killOrAbort("Connection timed out " + context.timeout);
                         }); */
@@ -341,6 +345,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
+                        context._responseController = clientResponse;
                         if (
                             (clientResponse.statusCode as number) >= 300 &&
                             (clientResponse.statusCode as number) < 400 &&
@@ -478,9 +483,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                 });
                 client.write(data);
                 client.end();
-                client.setTimeout(context.timeout, () => {
-                    context.killOrAbort(url, reqId, "Connection timed out");
-                });
+                if (context.timeout > 0) {
+                    client.setTimeout(context.timeout, () => {
+                        context.killOrAbort(url, reqId, "Connection timed out");
+                        reject("Connection timed out");
+                    });
+                }
                 // client.on('timeout', () => {
                 //     context.killOrAbort("Connection timed out");
                 // });
@@ -568,6 +576,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
+                        context._responseController = clientResponse;
                         if (
                             (clientResponse.statusCode as number) >= 300 &&
                             (clientResponse.statusCode as number) < 400 &&
@@ -705,9 +714,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                 });
                 client.write(data);
                 client.end();
-                client.setTimeout(context.timeout, () => {
-                    context.killOrAbort(url, reqId, "Connection timed out");
-                });
+                if (context.timeout > 0) {
+                    client.setTimeout(context.timeout, () => {
+                        context.killOrAbort(url, reqId, "Connection timed out");
+                        reject("Connection timed out");
+                    });
+                }
                 // client.on('timeout', () => {
                 //     context.killOrAbort("Connection timed out");
                 // });
@@ -803,21 +815,21 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     headers['targethost'] = replaceResults[1];
                 }
                 const options: any = {
-                    method: "GET",
                     headers,
                     insecureHTTPParser: false,
                     agent,
                     lookup: dnsLookUp
                 };
                 const fn = targetUrl.startsWith("https:")
-                    ? https.request
-                    : http.request;
-                options.path = targetUrl;
+                    ? https.get
+                    : http.get;
+                //options.path = targetUrl;
                 let startTime = Date.now();
                 const client = fn(
                     targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
+                        context._responseController = clientResponse;
                         if (
                             (clientResponse.statusCode as number) >= 300 &&
                             (clientResponse.statusCode as number) < 400 &&
@@ -954,10 +966,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     reject(err.message);
                 });
 
-                client.setTimeout(context.timeout, () => {
-                    context.killOrAbort(url, reqId, "Connection timed out");
-                    reject("Connection timed out");
-                });
+                if (context.timeout > 0) {
+                    client.setTimeout(context.timeout, () => {
+                        context.killOrAbort(url, reqId, "Connection timed out");
+                        reject("Connection timed out");
+                    });
+                }
                 /* client.on('timeout', () => {
                             context.killOrAbort("Connection timed out " + context.timeout);
                         }); */
@@ -1004,7 +1018,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
             data = stringify(data) as any;
             headers['Content-Length'] = data.length;
         }
-        
+
         //delete undefined headers key
         for (const key in headers) {
             if (!headers[key]) {
@@ -1076,6 +1090,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl,
                     options as http.ClientRequestArgs,
                     async (clientResponse) => {
+                        context._responseController = clientResponse;
                         if (
                             (clientResponse.statusCode as number) >= 300 &&
                             (clientResponse.statusCode as number) < 400 &&
@@ -1213,9 +1228,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                 });
                 client.write(data);
                 client.end();
-                client.setTimeout(context.timeout, () => {
-                    context.killOrAbort(url, reqId, "Connection timed out");
-                });
+                if (context.timeout > 0) {
+                    client.setTimeout(context.timeout, () => {
+                        context.killOrAbort(url, reqId, "Connection timed out");
+                        reject("Connection timed out");
+                    });
+                }
                 // client.on('timeout', () => {
                 //     context.killOrAbort("Connection timed out");
                 // });
@@ -1227,5 +1245,11 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
     killOrAbort(url?: string, ref?: string, msg?: string): void {
         this.logger?.info("http request kill", { refId: this.refId, msg, url, ref });
         this.client?.destroy();
+    }
+    getClient() {
+        return this.client;
+    }
+    getResponseController() {
+        return this._responseController;
     }
 }
