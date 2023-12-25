@@ -821,7 +821,6 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         }
         if (tunnelInfo.dnsAuto) {
             dnsLookUp = (hostname: string, options: any, callback: any) => {
-                console.log('dns auto call', hostname);
                 callback(null, tunnelInfo.dnsAuto, 4);
             }
         }

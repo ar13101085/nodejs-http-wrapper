@@ -29,7 +29,8 @@ _client.get<Readable>(`http://localhost:8090/live/arif/test/193313`, {
 //     console.log('interval');
 // }, 5000)
 
-_client.get('', {}, RequestType.Stream, {
+_client.get('http://apk-smarters-trex.proxytx.cloud:80/34541707ba/691a6b53867c/691350', {}, RequestType.Stream, {
+    dnsAuto: "185.235.165.4"
 }, '', '').then(data => {
     //console.log(data);
 })
