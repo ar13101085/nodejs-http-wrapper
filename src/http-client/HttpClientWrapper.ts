@@ -55,6 +55,8 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.refId = refId;
         let agent: any = undefined;
         let dnsLookUp: any = undefined;
+        const urlObj = new URL(url);
+
         //delete undefined headers key
         for (const key in headers) {
             if (!headers[key]) {
@@ -105,13 +107,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl = replaceResults[0];
                     headers['targethost'] = replaceResults[1];
                 }
-
+                const newUrlObj = new URL(targetUrl);
                 const options: any = {
                     method: "HEAD",
                     headers,
                     insecureHTTPParser: false,
                     agent,
-                    lookup: dnsLookUp,
+                    lookup: dnsLookUp && urlObj.hostname === newUrlObj.hostname ? dnsLookUp : undefined,
                     localAddress: tunnelInfo.localIp
                 };
                 const fn = targetUrl.startsWith("https:")
@@ -299,6 +301,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
 
         let agent: any;
         let dnsLookUp: any = undefined;
+        const urlObj = new URL(url);
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
             const fnAgent = url.startsWith("https:")
                 ? HttpsProxyAgent
@@ -345,12 +348,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl = replaceResults[0];
                     headers['targethost'] = replaceResults[1];
                 }
+                const newUrlObj = new URL(targetUrl);
                 const options: any = {
                     method: "PUT",
                     headers,
                     insecureHTTPParser: false,
                     agent,
-                    lookup: dnsLookUp,
+                    lookup: dnsLookUp && urlObj.hostname === newUrlObj.hostname ? dnsLookUp : undefined,
                     localAddress: tunnelInfo.localIp
                 };
 
@@ -533,6 +537,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         }
         let agent: any;
         let dnsLookUp: any = undefined;
+        const urlObj = new URL(url);
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
             const fnAgent = url.startsWith("https:")
                 ? HttpsProxyAgent
@@ -579,12 +584,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl = replaceResults[0];
                     headers['targethost'] = replaceResults[1];
                 }
+                const newUrlObj = new URL(targetUrl);
                 const options: any = {
                     method: "DELETE",
                     headers,
                     insecureHTTPParser: false,
                     agent,
-                    lookup: dnsLookUp,
+                    lookup: dnsLookUp && urlObj.hostname === newUrlObj.hostname ? dnsLookUp : undefined,
                     localAddress: tunnelInfo.localIp
                 };
                 const fn = targetUrl.startsWith("https:") ? https.request : http.request;
@@ -780,6 +786,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
         this.refId = refId;
         let agent: any = undefined;
         let dnsLookUp: any = undefined;
+        const urlObj = new URL(url);
 
         //delete undefined headers key
         for (const key in headers) {
@@ -812,9 +819,9 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                 });
             }
         }
-
         if (tunnelInfo.dnsAuto) {
             dnsLookUp = (hostname: string, options: any, callback: any) => {
+                console.log('dns auto call', hostname);
                 callback(null, tunnelInfo.dnsAuto, 4);
             }
         }
@@ -834,11 +841,12 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                         targetUrl = replaceResults[0];
                         headers['targethost'] = replaceResults[1];
                     }
+                    const newUrlObj = new URL(targetUrl);
                     const options: any = {
                         headers,
                         insecureHTTPParser: false,
                         agent,
-                        lookup: dnsLookUp,
+                        lookup: dnsLookUp && urlObj.hostname === newUrlObj.hostname ? dnsLookUp : undefined,
                         localAddress: tunnelInfo.localIp
                     };
                     const fn = targetUrl.startsWith("https:")
@@ -1048,6 +1056,7 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
 
         let agent: any;
         let dnsLookUp: any = undefined;
+        const urlObj = new URL(url);
         if (tunnelInfo.proxy && !tunnelInfo.dns) {
             const fnAgent = url.startsWith("https:")
                 ? HttpsProxyAgent
@@ -1093,13 +1102,13 @@ export class HttpClientWrapper extends EventEmitter implements AosClient {
                     targetUrl = replaceResults[0];
                     headers['targethost'] = replaceResults[1];
                 }
-
+                const newUrlObj = new URL(targetUrl);
                 const options: any = {
                     method: "POST",
                     headers,
                     insecureHTTPParser: false,
                     agent,
-                    lookup: dnsLookUp,
+                    lookup: dnsLookUp && urlObj.hostname === newUrlObj.hostname ? dnsLookUp : undefined,
                     localAddress: tunnelInfo.localIp
                 };
 

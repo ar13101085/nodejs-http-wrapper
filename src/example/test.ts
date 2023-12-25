@@ -28,3 +28,8 @@ _client.get<Readable>(`http://localhost:8090/live/arif/test/193313`, {
 // setInterval(() => {
 //     console.log('interval');
 // }, 5000)
+
+_client.get('', {}, RequestType.Stream, {
+}, '', '').then(data => {
+    //console.log(data);
+})
